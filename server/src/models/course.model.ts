@@ -1,4 +1,4 @@
-import { Schema, model } from "dynamoose";
+import { Schema, model } from 'dynamoose';
 
 const commentSchema = new Schema({
   commentId: {
@@ -26,7 +26,7 @@ const chapterSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ["Text", "Quiz", "Video"],
+    enum: ['Text', 'Quiz', 'Video'],
     required: true,
   },
   title: {
@@ -99,12 +99,12 @@ const courseSchema = new Schema(
     level: {
       type: String,
       required: true,
-      enum: ["Beginner", "Intermediate", "Advanced"],
+      enum: ['Beginner', 'Intermediate', 'Advanced'],
     },
     status: {
       type: String,
       required: true,
-      enum: ["Draft", "Published"],
+      enum: ['Draft', 'Published'],
     },
     sections: {
       type: Array,
@@ -127,5 +127,5 @@ const courseSchema = new Schema(
   }
 );
 
-const Course = model("Course", courseSchema);
+const Course = model('Course', courseSchema);
 export default Course;

@@ -2,35 +2,35 @@ import {
   DynamoDBClient,
   DeleteTableCommand,
   ListTablesCommand,
-} from "@aws-sdk/client-dynamodb";
-import fs from "fs";
-import path from "path";
-import dynamoose from "dynamoose";
-import pluralize from "pluralize";
-import Transaction from "../models/transactionModel";
-import Course from "../models/courseModel";
-import UserCourseProgress from "../models/userCourseProgressModel";
-import dotenv from "dotenv";
+} from '@aws-sdk/client-dynamodb';
+import fs from 'fs';
+import path from 'path';
+import dynamoose from 'dynamoose';
+import pluralize from 'pluralize';
+import Transaction from '../models/transaction.model';
+import Course from '../models/course.model';
+import UserCourseProgress from '../models/user-course-progress.model';
+import dotenv from 'dotenv';
 
 dotenv.config();
 let client: DynamoDBClient;
 
 /* DynamoDB Configuration */
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === 'production';
 
 if (!isProduction) {
   dynamoose.aws.ddb.local();
   client = new DynamoDBClient({
-    endpoint: "http://localhost:8000",
-    region: "us-east-2",
+    endpoint: 'http://localhost:8000',
+    region: 'us-east-2',
     credentials: {
-      accessKeyId: "dummyKey123",
-      secretAccessKey: "dummyKey123",
+      accessKeyId: 'dummyKey123',
+      secretAccessKey: 'dummyKey123',
     },
   });
 } else {
   client = new DynamoDBClient({
-    region: process.env.AWS_REGION || "us-east-2",
+    region: process.env.AWS_REGION || 'us-east-2',
   });
 }
 
@@ -38,7 +38,7 @@ if (!isProduction) {
 const originalWarn = console.warn.bind(console);
 console.warn = (message, ...args) => {
   if (
-    !message.includes("Tagging is not currently supported in DynamoDB Local")
+    !message.includes('Tagging is not currently supported in DynamoDB Local')
   ) {
     originalWarn(message, ...args);
   }
@@ -72,7 +72,7 @@ async function createTables() {
 
 async function seedData(tableName: string, filePath: string) {
   const data: { [key: string]: any }[] = JSON.parse(
-    fs.readFileSync(filePath, "utf8")
+    fs.readFileSync(filePath, 'utf8')
   );
 
   const formattedTableName = pluralize.singular(
@@ -93,7 +93,7 @@ async function seedData(tableName: string, filePath: string) {
   }
 
   console.log(
-    "\x1b[32m%s\x1b[0m",
+    '\x1b[32m%s\x1b[0m',
     `Successfully seeded data to table: ${formattedTableName}`
   );
 }
@@ -104,7 +104,7 @@ async function deleteTable(baseTableName: string) {
     await client.send(deleteCommand);
     console.log(`Table deleted: ${baseTableName}`);
   } catch (err: any) {
-    if (err.name === "ResourceNotFoundException") {
+    if (err.name === 'ResourceNotFoundException') {
       console.log(`Table does not exist: ${baseTableName}`);
     } else {
       console.error(`Error deleting table ${baseTableName}:`, err);
@@ -129,13 +129,13 @@ export default async function seed() {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   await createTables();
 
-  const seedDataPath = path.join(__dirname, "./data");
+  const seedDataPath = path.join(__dirname, './data');
   const files = fs
     .readdirSync(seedDataPath)
-    .filter((file) => file.endsWith(".json"));
+    .filter((file) => file.endsWith('.json'));
 
   for (const file of files) {
-    const tableName = path.basename(file, ".json");
+    const tableName = path.basename(file, '.json');
     const filePath = path.join(seedDataPath, file);
     await seedData(tableName, filePath);
   }
@@ -143,6 +143,6 @@ export default async function seed() {
 
 if (require.main === module) {
   seed().catch((error) => {
-    console.error("Failed to run seed script:", error);
+    console.error('Failed to run seed script:', error);
   });
 }
